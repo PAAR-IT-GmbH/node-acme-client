@@ -1,5 +1,8 @@
 # Changelog
 
+## v4.3.0 (2021-02-15)
+* `added` EAB Support (@bryanvaz)
+
 ## v4.2.0 (2021-02-15)
 
 * `changed` Removed bluebird, change findCertificateChainForIssuer behavior
