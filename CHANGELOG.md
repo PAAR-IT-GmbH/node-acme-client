@@ -1,5 +1,11 @@
 # Changelog
 
+## v4.2.0 (2021-02-15)
+
+* `changed` Removed bluebird, change findCertificateChainForIssuer behavior
+* `fixed` update axios because of security issue
+
+
 ## v4.1.2 (2020-11-16)
 
 * `fixed` Bug when encoding PEM payloads, potentially causing malformed requests
