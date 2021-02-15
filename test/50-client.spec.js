@@ -14,9 +14,9 @@ const capMetaTosField = !(('ACME_CAP_META_TOS_FIELD' in process.env) && (process
 const capUpdateAccountKey = !(('ACME_CAP_UPDATE_ACCOUNT_KEY' in process.env) && (process.env.ACME_CAP_UPDATE_ACCOUNT_KEY === '0'));
 const capAlternateCertRoots = !(('ACME_CAP_ALTERNATE_CERT_ROOTS' in process.env) && (process.env.ACME_CAP_ALTERNATE_CERT_ROOTS === '0'));
 
-
 describe('client', () => {
     let testIssuers;
+    // non-EAB
     let testPrivateKey;
     let testSecondaryPrivateKey;
     let testClient;
