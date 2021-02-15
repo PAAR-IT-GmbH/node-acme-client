@@ -32,7 +32,7 @@ async function retryPromise(fn, attempts, backoff) {
         const duration = backoff.duration();
         debug(`Promise rejected attempt #${backoff.attempts}, retrying in ${duration}ms: ${e.message}`);
 
-        await Promise.delay(duration);
+        await new Promise((resolve) => setTimeout(resolve, duration));
         return retryPromise(fn, attempts, backoff);
     }
 }
