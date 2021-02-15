@@ -5,10 +5,10 @@
  */
 
 const net = require('net');
-const Promise = require('bluebird');
+const util = require('util');
 const forge = require('node-forge');
 
-const generateKeyPair = Promise.promisify(forge.pki.rsa.generateKeyPair);
+const generateKeyPair = util.promisify(forge.pki.rsa.generateKeyPair);
 
 
 /**

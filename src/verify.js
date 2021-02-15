@@ -1,9 +1,7 @@
 /**
  * ACME challenge verification
  */
-
-const Promise = require('bluebird');
-const dns = Promise.promisifyAll(require('dns'));
+const dns = require('dns').promises;
 const debug = require('debug')('acme-client');
 const axios = require('./axios');
 
@@ -58,7 +56,7 @@ async function verifyDnsChallenge(authz, challenge, keyAuthorization, prefix = '
     try {
         /* Attempt CNAME record first */
         debug(`Checking CNAME for record ${challengeRecord}`);
-        const cnameRecords = await dns.resolveCnameAsync(challengeRecord);
+        const cnameRecords = await dns.resolveCname(challengeRecord);
 
         if (cnameRecords.length) {
             debug(`CNAME found at ${challengeRecord}, new challenge record: ${cnameRecords[0]}`);
@@ -70,7 +68,7 @@ async function verifyDnsChallenge(authz, challenge, keyAuthorization, prefix = '
     }
 
     /* Read TXT record */
-    const result = await dns.resolveTxtAsync(challengeRecord);
+    const result = await dns.resolveTxt(challengeRecord);
     const records = [].concat(...result);
 
     debug(`Query successful, found ${records.length} DNS TXT records`);
