@@ -4,7 +4,6 @@
 
 const { assert } = require('chai');
 const { v4: uuid } = require('uuid');
-const Promise = require('bluebird');
 const cts = require('./challtestsrv');
 const getCertIssuers = require('./get-cert-issuers');
 const spec = require('./spec');
@@ -280,12 +279,12 @@ describe('client', () => {
      */
 
     it('should get existing order', async () => {
-        await Promise.map([testOrder, testOrderWildcard], async (existing) => {
+        await Promise.all([testOrder, testOrderWildcard].map(async (existing) => {
             const result = await testClient.getOrder(existing);
 
             spec.rfc8555.order(result);
             assert.deepStrictEqual(existing, result);
-        });
+        }));
     });
 
 
@@ -346,11 +345,11 @@ describe('client', () => {
 
         const authzCollection = await testClient.getAuthorizations(order);
 
-        const results = await Promise.map(authzCollection, async (authz) => {
+        const results = await Promise.all(authzCollection.map(async (authz) => {
             spec.rfc8555.authorization(authz);
             assert.strictEqual(authz.status, 'pending');
             return testClient.deactivateAuthorization(authz);
-        });
+        }));
 
         results.forEach((authz) => {
             spec.rfc8555.authorization(authz);
@@ -377,12 +376,12 @@ describe('client', () => {
      */
 
     it('should complete challenge', async () => {
-        await Promise.map([testChallenge, testChallengeWildcard], async (challenge) => {
+        await Promise.all([testChallenge, testChallengeWildcard].map(async (challenge) => {
             const result = await testClient.completeChallenge(challenge);
 
             spec.rfc8555.challenge(result);
             assert.strictEqual(challenge.url, result.url);
-        });
+        }));
     });
 
 
@@ -391,7 +390,7 @@ describe('client', () => {
      */
 
     it('should wait for valid challenge status', async () => {
-        await Promise.map([testChallenge, testChallengeWildcard], async (c) => testClient.waitForValidStatus(c));
+        await Promise.all([testChallenge, testChallengeWildcard].map(async (c) => testClient.waitForValidStatus(c)));
     });
 
 
@@ -415,7 +414,7 @@ describe('client', () => {
      */
 
     it('should wait for valid order status', async () => {
-        await Promise.map([testOrder, testOrderWildcard], async (o) => testClient.waitForValidStatus(o));
+        await Promise.all([testOrder, testOrderWildcard].map(async (o) => testClient.waitForValidStatus(o)));
     });
 
 
@@ -427,10 +426,10 @@ describe('client', () => {
         testCertificate = await testClient.getCertificate(testOrder);
         testCertificateWildcard = await testClient.getCertificate(testOrderWildcard);
 
-        await Promise.map([testCertificate, testCertificateWildcard], async (cert) => {
+        await Promise.all([testCertificate, testCertificateWildcard].map(async (cert) => {
             assert.isString(cert);
             return acme.forge.readCertificateInfo(cert);
-        });
+        }));
     });
 
     it('should get alternate certificate chain [ACME_CAP_ALTERNATE_CERT_ROOTS]', async function() {
@@ -438,13 +437,13 @@ describe('client', () => {
             this.skip();
         }
 
-        await Promise.map(testIssuers, async (issuer) => {
+        await Promise.all(testIssuers.map(async (issuer) => {
             const cert = await testClient.getCertificate(testOrder, issuer);
             const rootCert = acme.forge.splitPemChain(cert).pop();
             const info = await acme.forge.readCertificateInfo(rootCert);
 
             assert.strictEqual(issuer, info.issuer.commonName);
-        });
+        }));
     });
 
     it('should get default chain with invalid preference [ACME_CAP_ALTERNATE_CERT_ROOTS]', async () => {

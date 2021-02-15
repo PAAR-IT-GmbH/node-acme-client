@@ -4,7 +4,6 @@
 
 const { assert } = require('chai');
 const { v4: uuid } = require('uuid');
-const Promise = require('bluebird');
 const cts = require('./challtestsrv');
 const getCertIssuers = require('./get-cert-issuers');
 const spec = require('./spec');
@@ -253,7 +252,7 @@ describe('client.auto', () => {
             this.skip();
         }
 
-        await Promise.map(testIssuers, async (issuer) => {
+        await Promise.all(testIssuers.map(async (issuer) => {
             const [, csr] = await acme.forge.createCsr({
                 commonName: `${uuid()}.example.com`
             });
@@ -270,7 +269,7 @@ describe('client.auto', () => {
             const info = await acme.forge.readCertificateInfo(rootCert);
 
             assert.strictEqual(issuer, info.issuer.commonName);
-        });
+        }));
     });
 
     it('should get default chain with invalid preference [ACME_CAP_ALTERNATE_CERT_ROOTS]', async function() {

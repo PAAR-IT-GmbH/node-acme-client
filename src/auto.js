@@ -2,7 +2,6 @@
  * ACME auto helper
  */
 
-const Promise = require('bluebird');
 const debug = require('debug')('acme-client');
 const forge = require('./crypto/forge');
 
