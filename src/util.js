@@ -1,8 +1,6 @@
 /**
  * Utility methods
  */
-
-const Promise = require('bluebird');
 const Backoff = require('backo2');
 const debug = require('debug')('acme-client');
 const forge = require('./crypto/forge');
@@ -101,40 +99,30 @@ function parseLinkHeader(header, rel = 'alternate') {
     return results.filter((r) => r);
 }
 
-
 /**
  * Find certificate chain with preferred issuer
  * If issuer can not be located, the first certificate will be returned
  *
- * @param {array} certificates Array of PEM encoded certificate chains
+ * @param {array} chains Array of PEM encoded certificate chains
  * @param {string} issuer Preferred certificate issuer
  * @returns {Promise<string>} PEM encoded certificate chain
  */
 
 async function findCertificateChainForIssuer(chains, issuer) {
-    try {
-        return await Promise.any(chains.map(async (chain) => {
-            /* Look up all issuers */
-            const certs = forge.splitPemChain(chain);
-            const infoCollection = await Promise.map(certs, forge.readCertificateInfo);
-            const issuerCollection = infoCollection.map((i) => i.issuer.commonName);
-
-            /* Found match, return it */
-            if (issuerCollection.includes(issuer)) {
-                debug(`Found matching certificate for preferred issuer="${issuer}", issuers=${JSON.stringify(issuerCollection)}`);
+    // eslint-disable-next-line no-restricted-syntax
+    for (const chain of chains) {
+        const certs = forge.splitPemChain(chain);
+        // eslint-disable-next-line no-restricted-syntax
+        for (const cert of certs) {
+            // eslint-disable-next-line no-await-in-loop
+            const i = await forge.readCertificateInfo(cert);
+            if (i.issuer.commonName === issuer) {
                 return chain;
             }
-
-            /* No match, throw error */
-            debug(`Unable to match certificate for preferred issuer="${issuer}", issuers=${JSON.stringify(issuerCollection)}`);
-            throw new Error('Certificate issuer mismatch');
-        }));
+        }
     }
-    catch (e) {
-        /* No certificates matched, return default */
-        debug(`Found no match in ${chains.length} certificate chains for preferred issuer="${issuer}", returning default certificate chain`);
-        return chains[0];
-    }
+    debug(`Found no match in ${chains.length} certificate chains for preferred issuer="${issuer}", returning default certificate chain`);
+    return chains[0];
 }
 
 
